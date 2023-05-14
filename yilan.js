@@ -28,7 +28,7 @@ window.onload=function(){
     
     context=canvas.getContext("2d");
     
-    foodPlace();
+    yemKonumu();
     document.addEventListener("keyup",yonDegistir);
 
     // İlk satırda updateInterval sıfırlanıyor.İkinci satırda yeni değeri atanıyor.Bu,yenile değeri daha sonra azaltılacağı için yapılıyor.
@@ -36,7 +36,7 @@ window.onload=function(){
     updateInterval=setInterval(update,yenile);
 }
 
-function skor_goster(skor){
+function skorGoster(skor){
     //html dosyasindaki id'si score olan yeri skor değişkeni ile günceller
     document.getElementById("score").textContent = skor;
 }
@@ -47,49 +47,61 @@ function update(){
         return;
     }
 
-    sayac++;
-    yenile=(1500-(2*sayac))/10;
-
+    //Canvasin boyutlarinda dikdortgen olusturuyor.
     context.fillStyle="#146C94";
     context.fillRect(0,0,canvas.width,canvas.height);
-    //Canvasin boyutlarinda dikdortgen olusturuyor.
+    
+    //Yem olusturuluyor.
     context.fillStyle="#FF6D60";
     context.fillRect(yemX,yemY,blockSize,blockSize);
-    //Yem olusturuluyor.
-
+   
+    //Yilan yemi yerse
     if(yilanX==yemX && yilanY==yemY){
-        yilanGovdesi.push(yemX,yemY);
-        foodPlace();
+        // yılan yemi yerse sayacı arttır ve sayfanın yenileme hızını arttırarak yılanın hızlanmasını sağla
+        sayac++;
+        yenile=(1500-(2*sayac))/10;
+
         //Yilan yemi yerse yemin son konumunu yilanin govdesine ekle
+        yilanGovdesi.push(yemX,yemY);
+        //Yeme yeni rastgele konum ata
+        yemKonumu();
+        
+        //Skoru 10 arttır ve ekranda guncelle
         skor+=10;
-        skor_goster(skor);
+        skorGoster(skor);
+
+        //güncellenmiş yenile değeri ile update fonksiyonunu yeniden çağır
         clearInterval(updateInterval);
         updateInterval=setInterval(update,yenile);
     }
 
+    //yılanın gövdesinin kafasını takip etmesi için yılanın her parçasını kendinden önceki parçaya ata
     for(i=yilanGovdesi.length-1;i>0;i--){
         yilanGovdesi[i]=yilanGovdesi[i-1];
     }
 
+    //boşta kalan son parçayıda yılanın yeni konumuna ata(burası yılanın kafası oluyor)
     if(yilanGovdesi.length){
         yilanGovdesi[0]=[yilanX,yilanY];
     }
 
+    //yilanin canvas içinde x ve y koordinatlarında blocksıze kadar ilerlemesini sağlar
     yilanX+=(hizX*blockSize);
     yilanY+=(hizY*blockSize);
 
+    //yılan oyun alanının yukarısındaki engelsiz alandan çıkarsa aşağıdaki alandan tekrar oyun alanına girer
     if(yilanX>=10*blockSize && yilanX<=14*blockSize && yilanY<0){
         yilanY=sutun*blockSize;
     }
-
+    //eğer aşağıdaki engelsiz alandan çıkarsa yukarıdan oyun alanına girer
     else if(yilanX>=10*blockSize && yilanX<=14*blockSize && yilanY>sutun*blockSize){
         yilanY=0;
     }
 
+    //Yilanin kafasi olusturuluyor
     context.fillStyle="#00FFCA";
     context.fillRect(yilanX,yilanY,blockSize,blockSize);
-
-    //Yilanin kafasi olusturuluyor
+    
     for(i=0;i<yilanGovdesi.length;i++){
         context.fillRect(yilanGovdesi[i][0],yilanGovdesi[i][1],blockSize,blockSize);
         //Yilanin govdesi olusturuluyor
@@ -98,45 +110,51 @@ function update(){
     engel();
 }
 
+//Yılanın engellere çarpmasını kontrol eder
 function carpisti(){
 
+    //üst ve alt kenarlardaki engellere çarpması durumu
     for(i=0;i<11*blockSize;i+=blockSize){
         var kX=yilanX==(i+15*blockSize) || yilanX==i;
         var kY=yilanY<=0|| yilanY>=(satir-1)*blockSize;
         if(kX && kY){
             gameOver=true;
-            alert("Game Over");
+            alert("Oyun Bitti");
         }
     }
 
+    //ortadaki engellere çarpma durumu 
     if(yilanY==13*blockSize && (yilanX<=5*blockSize || yilanX>=canvas.width-6*blockSize)){
         gameOver=true;
-        alert("Game Over");
+        alert("Oyun Bitti");
     }
 
+    //oyun alanının üst ve alt kısımlarının ortasındaki engellere çarpma durumu
     if((yilanY==6*blockSize|| yilanY==(sutun-6)*blockSize) && (yilanX>=4*blockSize && yilanX<=21*blockSize)){
         gameOver=true;
-        alert("Game Over");
+        alert("Oyun Bitti");
     }
 
+    //sağ ve sol kenarlardaki engellere çarpma durumu 
     for(i=0;i<sutun*blockSize;i++){
         if((yilanX<=0 || yilanX>=(sutun-1)*blockSize) && yilanY==i){
             gameOver=true;
-            alert("Game Over");
+            alert("Oyun Bitti");
         }
     }
 
+    //Yilanin kendini ısırma kontrolu
     for(i=0;i<yilanGovdesi.length;i++){
         if(yilanX==yilanGovdesi[i][0] && yilanY==yilanGovdesi[i][1]){
             gameOver=true;
-            alert("Game Over");
+            alert("Oyun Bitti");
             break;
         }
-        //Yilanin kendini isirma kontrolu
     }
 }
 
 
+//engelleri oluşturan fonksiyon
 function engel(){
 
     context.fillStyle="#94b9ff";
@@ -156,6 +174,7 @@ function engel(){
 
 }
 
+//yılanı kontrol eden fonksiyon
 function yonDegistir(e){
     if(e.code=="ArrowUp" && hizY!=1){
         hizX=0;
@@ -178,47 +197,54 @@ function yonDegistir(e){
     }
 }
 
-    function foodPlace(){
+function yemKonumu(){
+    //yemin bulunabileceği 5 farklı bölge var 
+    var bolge=Math.floor(Math.random()*5);
 
-        var bolge=Math.floor(Math.random()*5);
-
-        switch(bolge){
-            case 0:
-                yemX=Math.floor(Math.random()*24+1)*blockSize;
-                yemY=Math.floor(Math.random()*12+1)*blockSize;
-                if(yemY==6*blockSize && yemX>=4*blockSize && yemX<=22*blockSize){
-                    yemY=7*blockSize;
-                }
-                break;
-            
-            case 1:
-                yemX=Math.floor(Math.random()*24+1)*blockSize;
-                yemY=Math.floor(Math.random()*12+14)*blockSize;
-                if(yemY==(sutun-6)*blockSize && yemX>=4*blockSize && yemX<=22*blockSize){
-                    yemY=(sutun-7)*blockSize;
-                }
-                break;
-            
-            case 2:
-                yemY=0;
-                yemX=Math.floor(Math.random()*4+11)*blockSize;
-                break;
-            
-            case 3:
-                yemY=(sutun-1)*blockSize;
-                yemX=Math.floor(Math.random()*4+11)*blockSize;
-                break;
-            
-            case 4:
-                yemY=13*blockSize;
-                yemX=Math.floor(Math.random()*14+6)*blockSize;
-                break;
-        }
+    switch(bolge){
+        case 0:
+            //yem üst bölgede bulunursa 
+            yemX=Math.floor(Math.random()*24+1)*blockSize;
+            yemY=Math.floor(Math.random()*12+1)*blockSize;
+            if(yemY==6*blockSize && yemX>=4*blockSize && yemX<=22*blockSize){
+                //eğer üst bölgenin ortasındaki engelle aynı yerse bir satır yukarı koy
+                yemY=7*blockSize;
+            }
+            break;
         
-
-        // yemX=Math.floor(Math.random()*sutun)*blockSize;
-        // yemY=Math.floor(Math.random()*satir)*blockSize;
+        case 1:
+            //yem alt bölgede bulunursa 
+            yemX=Math.floor(Math.random()*24+1)*blockSize;
+            yemY=Math.floor(Math.random()*12+14)*blockSize;
+            if(yemY==(sutun-6)*blockSize && yemX>=4*blockSize && yemX<=22*blockSize){
+                //eğer alt bölgenin ortasındaki engelle aynı yerse bir satır yukarı koy
+                yemY=(sutun-7)*blockSize;
+            }
+            break;
+        
+        case 2:
+            //oyun alanının tepesindeki boşluktaysa 
+            yemY=0;
+            yemX=Math.floor(Math.random()*4+11)*blockSize;
+            break;
+        
+        case 3:
+            //oyun alanının altındaki boşluktaysa 
+            yemY=(sutun-1)*blockSize;
+            yemX=Math.floor(Math.random()*4+11)*blockSize;
+            break;
+        
+        case 4:
+            //oyun alanının ortasındaki iki engelin arasındaysa
+            yemY=13*blockSize;
+            yemX=Math.floor(Math.random()*14+6)*blockSize;
+            break;
     }
+    
+
+    // yemX=Math.floor(Math.random()*sutun)*blockSize;
+    // yemY=Math.floor(Math.random()*satir)*blockSize;
+}
 
 function restartGame(){
     location.reload();
