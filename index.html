@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" >
+    <title>Snake</title>
+    <style>
+       body{
+        overflow-x: hidden;
+        overflow: hidden;
+        background-color: #5b1875;
+       }
+
+        h1{
+            font-family: 'Courier New', Courier, monospace;
+            color: #088395;
+            position: relative;
+            left: 280px;
+            top: -5px;
+            margin: 0;
+        }
+
+        button {
+            position: relative;
+            background-color: #4CAF50; /* arka plan rengi */
+            border: none; /* kenarlık yok */
+            color: white; /* yazı rengi */
+            padding: 15px 32px; /* iç içe dolgular */
+            text-align: center; /* ortalanmış yazı */
+            text-decoration: none; /* alt çizgi yok */
+            display: inline-block; /* blok olarak değil satır olarak görüntüle */
+            font-size: 16px; /* yazı tipi boyutu */
+            margin: 4px 2px; /* dış dolgular */
+            cursor: pointer; /* imleci el simgesine dönüştür */
+            border-radius: 8px; /* kenar yarıçapı */
+            transition-duration: 0.4s; /* geçiş süresi */
+            left: 150px;
+            top: -600px;
+        }
+
+        /* butonun hover (üzerine gelince) durumunda görünümü */
+        button:hover {
+            background-color: #3e8e41; /* arka plan rengi değiştir */
+            color: white; /* yazı rengi beyaz olarak kalır */
+        }
+
+        /* .baslik button{
+            font-size: large;
+            position: relative;
+            left: 0px;
+            top: -500px;
+        } */
+
+
+        p{
+            position: relative;
+            color: #FDE2F3;
+            font-size: 20px;
+            top: -500px;
+            left: 53%;
+        }
+
+        .skor p{
+            font-size: 30px; /* yazı tipi boyutu */
+            color: #108ed6; /* yazı rengi */
+            font-weight: bold; /* yazı tipi kalınlığı */
+        }
+
+        canvas{
+            position: relative;
+            top: -5px;
+            left: 5%;
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="snake.css"> -->
+    <script src="deneme.js"></script>
+    </head>
+
+    <body>
+        <h1>Yılan Oyunu</h1>
+        <canvas id="canvas"></canvas>
+        <button onclick="restartGame()">Yeniden Başlat</button>
+        <p>Yeşil kare yılanı turuncu karede yemi temsil etmektedir.</p>
+        <p>Yılan klavyenin yön tuşları ile hareket ettirilmektedir.</p>
+        <p>Oyuna başlamak için klavyedeki yön tuşlarından birine basın.</p>
+        <div class="skor"><p>Skor: <span id="score">0</span></p></div>
+    </body>
+</html>
